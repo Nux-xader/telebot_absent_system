@@ -1,4 +1,4 @@
-import telebot, json, sys, os
+import telebot, config, json, sys, os
 
 bot = telebot.TeleBot("5083702955:AAF7gxDMwaa-fJjTXcvsu6eBoi8A-ZJczvk")
 db_user = "db/users.json"
