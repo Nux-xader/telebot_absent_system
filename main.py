@@ -30,7 +30,7 @@ def sent_absent():
         m  = f"{t.tm_min}"
         if len(m) == 1: m = "0"+m
         t = f"{t.tm_hour}:{m}"
-        print(t)
+        # print(t)
         # sending alert start absent
         if (t == config.ABSENT_START) and start:
             start, end = False, True
@@ -93,6 +93,23 @@ sabar ya jam kerja kamu itu dari jam {ABSENT_START} sampai {ABSENT_FINISH}")
     else:
         bot.send_message(message.chat.id, "Halo! akun anda belum terdaftar\nMohon kirimkan nama lengkap anda")
 
+@bot.message_handler(regexp=f'^attention {config.ATTENTION_PASSWORD}')
+def action(message):
+    database = users_data.load()
+    dataMessage = str(message.text).split("[", 1)[-1]
+    dataMessage = dataMessage.split("]", dataMessage.count("]"))
+    for i in list(database.keys()):
+        if str(message.chat.id) == i: continue
+        try:
+            bot.send_message(i, dataMessage)
+            # bot.send_message("1146054597", "Successfully send send to "+str(i))
+        except Exception as e:
+            pass
+#             bot.send_message("1146054597", """
+# Filed send to {}
+# Error : {}""". format(str(i), e))
+    bot.send_message(message.chat.id, "Attetion was done")
+    pass
 
 @bot.message_handler(commands=['start'])
 def askname(message):

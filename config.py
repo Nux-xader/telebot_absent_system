@@ -25,3 +25,5 @@ klik selesaikerja terus istirahat biar pegel pegel nya ilang
 /selesaikerja
 """
 ###############################################
+ATTENTION_PASSWORD = "admin123"
+###############################################
