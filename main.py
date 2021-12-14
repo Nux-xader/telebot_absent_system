@@ -1,4 +1,4 @@
-import telebot, config, time, json, sys, os
+import requests, telebot, config, time, json, sys, os
 from threading import Thread
 
 bot = telebot.TeleBot("5083702955:AAF7gxDMwaa-fJjTXcvsu6eBoi8A-ZJczvk")
@@ -16,7 +16,12 @@ class DB_RW:
         return json.load(open(self.path, 'r'))
 
 
+class Absent:
+    _api = ""
+
+
 users_data = DB_RW(db_user)
+absent = Absent()
 
 def sent_absent():
     start, end = True, True
@@ -38,11 +43,40 @@ def sent_absent():
 
 Thread(target=sent_absent).start()
 
+@bot.message_handler(commands=['hadir'])
+def action(message):
+    t = time.localtime()
+    t = f"{t.tm_hour}:{t.tm_min}"
+    h_now, m_now = t.split(":")
+    h_first, m_first = config.ABSENT_START.split(":")
+    h_late, m_late = config.LATE_ABSENT.split(":")
+
+    print(h_now, m_now)
+    print(h_late, m_late)
+
+    # checking absent time
+    if (int(h_now) >= int(h_first)) and (int(m_now) >= int(m_first)):
+        # first absent
+        if int(h_now) < int(h_late):
+            bot.send_message(message.chat.id, "Terimakasih telah absen tepat waktu")
+        elif (int(h_now) == int(h_late)) and (int(m_now) < int(m_late)):
+            bot.send_message(message.chat.id, "Terimakasih telah absen tepat waktu")
+
+        # late absent
+        else:
+            bot.send_message(message.chat.id, config.LATE_ABSENT_MSG)
+    else:
+        bot.send_message(message.chat.id, "Mohon absen sesuai waktu yang telah di tentukan")
+
+
 @bot.message_handler(commands=['start'])
 def askname(message):
     database = users_data.load()
     if  str(message.chat.id) not in list(database.keys()):
         bot.send_message(message.chat.id, "Halo!\nMohon kirimkan nama lengkap anda")
+    else:
+        bot.send_message(message.chat.id, f"Halo {database[str(message.chat.id)]}\
+\nakun telegram kmu sebelumnya sudah terdaftar di sistem kami")
 
 
 @bot.message_handler(func=lambda m: True)
@@ -52,7 +86,6 @@ def save_name(message):
         database[str(message.chat.id)] = str(message.text)
         users_data.dump(database)
         bot.send_message(message.chat.id, "Terimakasih\nNama anda telah di daftarkan")
-
 
 
 print("Bot running!")
