@@ -2,7 +2,7 @@
 # format : HH:MM
 ABSENT_START = "07:00"
 LATE_ABSENT = "07:45"
-ABSENT_FINISH = "16:04"
+ABSENT_FINISH = "16:08"
 ###############################################
 ###############################################
 ABSENT_START_MSG = """

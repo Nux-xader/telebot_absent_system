@@ -27,15 +27,18 @@ def sent_absent():
     start, end = True, True
     while True:
         t = time.localtime()
-        t = f"{t.tm_hour}:{t.tm_min}"
+        m  = f"{t.tm_min}"
+        if len(m) == 1: m = "0"+m
+        t = f"{t.tm_hour}:{m}"
+        print(t)
         # sending alert start absent
-        if (t == config.ABSENT_START) and (start):
+        if (t == config.ABSENT_START) and start:
             start, end = False, True
             for i in list(users_data.load().keys()):
                 bot.send_message(i, config.ABSENT_START_MSG)
 
         # sending alert end absent
-        if (t == config.ABSENT_FINISH) and (end):
+        if (t == config.ABSENT_FINISH) and end:
             start, end = True, False
             for i in list(users_data.load().keys()):
                 bot.send_message(i, config.ABSENT_FINISH_MSG)
@@ -71,6 +74,7 @@ def absent_first(message):
             bot.send_message(message.chat.id, "Mohon absen sesuai waktu yang telah di tentukan")
     else:
         bot.send_message(message.chat.id, "Halo! akun anda belum terdaftar\nMohon kirimkan nama lengkap anda")
+
 
 @bot.message_handler(commands=['selesaikerja'])
 def absent_end(message):
