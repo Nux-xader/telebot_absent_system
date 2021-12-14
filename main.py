@@ -44,29 +44,50 @@ def sent_absent():
 Thread(target=sent_absent).start()
 
 @bot.message_handler(commands=['hadir'])
-def action(message):
-    t = time.localtime()
-    t = f"{t.tm_hour}:{t.tm_min}"
-    h_now, m_now = t.split(":")
-    h_first, m_first = config.ABSENT_START.split(":")
-    h_late, m_late = config.LATE_ABSENT.split(":")
+def absent_first(message):
+    database = users_data.load()
+    if  str(message.chat.id) in list(database.keys()):
+        t = time.localtime()
+        t = f"{t.tm_hour}:{t.tm_min}"
+        h_now, m_now = t.split(":")
+        h_first, m_first = config.ABSENT_START.split(":")
+        h_late, m_late = config.LATE_ABSENT.split(":")
 
-    print(h_now, m_now)
-    print(h_late, m_late)
+        # print(h_now, m_now)
+        # print(h_late, m_late)
 
-    # checking absent time
-    if (int(h_now) >= int(h_first)) and (int(m_now) >= int(m_first)):
-        # first absent
-        if int(h_now) < int(h_late):
-            bot.send_message(message.chat.id, "Terimakasih telah absen tepat waktu")
-        elif (int(h_now) == int(h_late)) and (int(m_now) < int(m_late)):
-            bot.send_message(message.chat.id, "Terimakasih telah absen tepat waktu")
+        # checking absent time
+        if (int(h_now) >= int(h_first)) and (int(m_now) >= int(m_first)):
+            # first absent
+            if int(h_now) < int(h_late):
+                bot.send_message(message.chat.id, "Terimakasih telah absen tepat waktu")
+            elif (int(h_now) == int(h_late)) and (int(m_now) < int(m_late)):
+                bot.send_message(message.chat.id, "Terimakasih telah absen tepat waktu")
 
-        # late absent
+            # late absent
+            else:
+                bot.send_message(message.chat.id, config.LATE_ABSENT_MSG)
         else:
-            bot.send_message(message.chat.id, config.LATE_ABSENT_MSG)
+            bot.send_message(message.chat.id, "Mohon absen sesuai waktu yang telah di tentukan")
     else:
-        bot.send_message(message.chat.id, "Mohon absen sesuai waktu yang telah di tentukan")
+        bot.send_message(message.chat.id, "Halo! akun anda belum terdaftar\nMohon kirimkan nama lengkap anda")
+
+@bot.message_handler(commands=['selesaikerja'])
+def absent_end(message):
+    database = users_data.load()
+    if  str(message.chat.id) in list(database.keys()):
+        t = time.localtime()
+        t = f"{t.tm_hour}:{t.tm_min}"
+        h_now, m_now = t.split(":")
+        h_finish, m_finish = config.ABSENT_FINISH.split(":")
+
+        if (int(h_now) >= int(h_finish)) and (int(m_now) >= int(m_finish)):
+            bot.send_message(message.chat.id, "Terimakasih telah melakukan absen:)")
+        else:
+            bot.send_message(message.chat.id, f"Jam kerja kamu belum habis loh\n\
+sabar ya jam kerja kamu itu dari jam {ABSENT_START} sampai {ABSENT_FINISH}")
+    else:
+        bot.send_message(message.chat.id, "Halo! akun anda belum terdaftar\nMohon kirimkan nama lengkap anda")
 
 
 @bot.message_handler(commands=['start'])
