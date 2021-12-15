@@ -1,4 +1,10 @@
 ###############################################
+# for store data
+BASE_API = "http://192.168.1.9:8000"
+START_ABSENT_URL = BASE_API+"/api/absen/datang"
+END_ABSENT_URL = BASE_API+"/api/absen/pulang"
+REGISTER_ABSENT_URL = BASE_API+"/api/absen/register"
+###############################################
 # format : HH:MM
 ABSENT_START = "07:00"
 LATE_ABSENT = "07:45"

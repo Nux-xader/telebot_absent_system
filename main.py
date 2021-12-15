@@ -4,7 +4,11 @@ from threading import Thread
 bot = telebot.TeleBot("5083702955:AAF7gxDMwaa-fJjTXcvsu6eBoi8A-ZJczvk")
 db_user = "db/users.json"
 db_was_absent = "temp/was_absent.json"
-
+headers = {
+    "user-agent": 
+    "Mozilla/5.0 (Linux; Android 6.0.1; Redmi Note 3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Mobile Safari/537.36", 
+    "x-api-key": "abc"
+}
 
 class DB_RW:
     def __init__(self, path):
@@ -61,7 +65,9 @@ def absent_first(message):
         temp = was_absent.load()
         if str(message.chat.id) not in temp:
             t = time.localtime()
-            t = f"{t.tm_hour}:{t.tm_min}"
+            m  = f"{t.tm_min}"
+            if len(m) == 1: m = "0"+m
+            t = f"{t.tm_hour}:{m}"
             h_now, m_now = t.split(":")
             h_first, m_first = config.ABSENT_START.split(":")
             h_late, m_late = config.LATE_ABSENT.split(":")
@@ -80,6 +86,13 @@ def absent_first(message):
                 # late absent
                 else:
                     bot.send_message(message.chat.id, config.LATE_ABSENT_MSG)
+
+                response = requests.post(
+                    config.START_ABSENT_URL, 
+                    data={"idtelegram": str(message.chat.id), "jam":t}, 
+                    headers=headers
+                    ).json()
+                print(response)
             else:
                 bot.send_message(message.chat.id, "Mohon absen sesuai waktu yang telah di tentukan")
         else:
@@ -101,6 +114,12 @@ def absent_end(message):
 
             if (int(h_now) >= int(h_finish)) and (int(m_now) >= int(m_finish)):
                 bot.send_message(message.chat.id, "Terimakasih telah melakukan absen:)")
+                response = requests.post(
+                    config.END_ABSENT_URL, 
+                    data={"idtelegram": str(message.chat.id), "jam":t}, 
+                    headers=headers
+                    ).json()
+                print(response)
             else:
                 bot.send_message(message.chat.id, f"Jam kerja kamu belum habis loh\n\
 sabar ya jam kerja kamu itu dari jam {config.ABSENT_START} sampai {config.ABSENT_FINISH}")
