@@ -71,9 +71,11 @@ def absent_first(message):
             h_now, m_now = t.split(":")
             h_first, m_first = config.ABSENT_START.split(":")
             h_late, m_late = config.LATE_ABSENT.split(":")
+            h_finish, m_finish = config.ABSENT_FINISH.split(":")
 
             # checking absent time
-            if (int(h_now) >= int(h_first)) and (int(m_now) >= int(m_first)):
+            if (int(h_now) >= int(h_first)) and (int(m_now) >= int(m_first))\
+                and ((int(h_now)*60)+m_now < (int(h_finish)*60)+m_finish):
                 # store was absent
                 temp.append(str(message.chat.id))
                 was_absent.dump(temp)
@@ -110,6 +112,7 @@ def absent_end(message):
             t = time.localtime()
             t = f"{t.tm_hour}:{t.tm_min}"
             h_now, m_now = t.split(":")
+            h_first, m_first = config.ABSENT_START.split(":")
             h_finish, m_finish = config.ABSENT_FINISH.split(":")
 
             if (int(h_now) >= int(h_finish)) and (int(m_now) >= int(m_finish)):
@@ -150,10 +153,10 @@ def action(message):
 def askname(message):
     database = users_data.load()
     if  str(message.chat.id) not in list(database.keys()):
-        bot.send_message(message.chat.id, "Halo!\nMohon kirimkan nama lengkap anda")
+        bot.send_message(message.chat.id, "Halo!\nMohon kirimkan NIP anda")
     else:
-        bot.send_message(message.chat.id, f"Halo {database[str(message.chat.id)]}\
-\nakun telegram kmu sebelumnya sudah terdaftar di sistem kami")
+        bot.send_message(message.chat.id, f"Halo, \
+akun telegram kmu sebelumnya sudah terdaftar di sistem kami. NIP : {database[str(message.chat.id)]}")
 
 
 @bot.message_handler(func=lambda m: True)
@@ -161,9 +164,14 @@ def save_name(message):
     database = users_data.load()
     if  str(message.chat.id) not in list(database.keys()):
         database[str(message.chat.id)] = str(message.text)
+        response = requests.post(
+            config.REGISTER_ABSENT_URL, 
+            data={"idtelegram": str(message.chat.id), "nip":str(message.text)}, 
+            headers=headers
+            ).json()
+        print(response)
         users_data.dump(database)
-        bot.send_message(message.chat.id, "Terimakasih\nNama anda telah di daftarkan")
-
+        bot.send_message(message.chat.id, "Terimakasih\nNIP anda telah di daftarkan")
 
 print("Bot running!")
 bot.polling()
